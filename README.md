@@ -1,157 +1,128 @@
 # IT Ticketing Support System
 
-A role-based IT helpdesk web application built with **Python, Streamlit, and MySQL**.
+A role-based IT helpdesk application built with **Python, Streamlit and MySQL**. Employees can report technical issues, IT staff can manage and resolve tickets, and administrators can monitor support operations.
 
 ## Features
 
-- Employee registration and login
-- Secure password hashing with PBKDF2
-- Create tickets with category, priority, and description
-- Employees can view only their own tickets
-- IT Staff/Admin can view the ticket queue
-- Assign tickets to IT Staff/Admin
-- Update priority and status
-- Ticket comments / conversation history
-- Dashboard metrics and status/category charts
-- Parameterized SQL queries and relational foreign keys
+### Employee
+- Register and sign in securely.
+- Create tickets with a category, priority and description.
+- View, search, filter and track submitted tickets.
+- Review assignment, target deadline, comments and activity history.
+
+### IT Staff
+- View assigned work and the shared ticket queue.
+- Pick up unassigned tickets.
+- Update ticket status and priority.
+- Communicate through ticket comments and review ticket activity.
+
+### Admin
+- Monitor ticket volume, status, priority, overdue work and resolution performance.
+- Search and manage all tickets, including assignments and target deadlines.
+- Review team workload and user roles.
+- Explore operational reports using SQL joins, aggregates, grouping and subqueries.
+
+## Technology stack
+
+- **Python** — application and business logic.
+- **Streamlit** — web interface, forms, dashboards and navigation.
+- **MySQL** — persistent relational data storage.
+- **SQL** — CRUD operations, joins, aggregate functions, `GROUP BY`, `HAVING` and subqueries.
+- **Pandas / Plotly** — query-result handling and interactive charts.
+- **PBKDF2 password hashing** — password storage without saving plain-text passwords.
+
+## Database design
+
+The application initializes and upgrades its tables when it starts. First create the database by running `schema.sql` in MySQL Workbench.
+
+The application uses these tables:
+
+| Table | Purpose |
+|---|---|
+| `users` | Employee, IT Staff and Admin accounts |
+| `categories` | Available issue categories |
+| `tickets` | Issue details, requester, assignment, priority, status and deadlines |
+| `comments` | Conversation messages attached to tickets |
+| `ticket_events` | Activity history such as ticket creation, assignment and status changes |
+
+Primary keys and foreign keys connect the records. A user can raise many tickets; a support user can be assigned many tickets; a ticket can have many comments and activity events.
 
 ## Requirements
 
-- Python 3.10+
-- MySQL Server 8+
+- Python 3.10 or newer
+- MySQL Server 8 or newer
 - MySQL Workbench (recommended)
 - VS Code or another Python IDE
 
-## 1. Create the database
+## Setup (Windows PowerShell)
 
-Open MySQL Workbench and run `schema.sql`.
+1. Clone the repository and open its folder:
 
-Alternatively, run:
+   ```powershell
+   git clone https://github.com/Vinithreddy6/IT-Ticketing-Support-System.git
+   cd IT-Ticketing-Support-System
+   ```
 
-```sql
-CREATE DATABASE it_ticketing_system;
-```
+2. Create and activate a virtual environment:
 
-The application creates the tables and default categories automatically at startup. The database itself must exist first.
+   ```powershell
+   python -m venv .venv
+   .venv\Scripts\Activate.ps1
+   ```
 
-## 2. Create and activate a virtual environment (recommended)
+3. Install the dependencies:
 
-Windows PowerShell:
+   ```powershell
+   pip install -r requirements.txt
+   ```
 
-```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-```
+4. In MySQL Workbench, run `schema.sql` to create the database.
 
-Command Prompt:
+5. Create your local Streamlit secrets file by copying `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml`, then enter your own MySQL credentials:
 
-```cmd
-.venv\Scripts\activate
-```
+   ```toml
+   [mysql]
+   host = "localhost"
+   port = 3306
+   user = "YOUR_MYSQL_USER"
+   password = "YOUR_MYSQL_PASSWORD"
+   database = "it_ticketing_system"
+   ```
 
-macOS/Linux:
+6. Start the app from the repository folder:
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
+   ```powershell
+   streamlit run app.py
+   ```
 
-## 3. Install packages
+   Streamlit will show a local URL, normally `http://localhost:8501`.
 
-```bash
-pip install -r requirements.txt
-```
+The application can also read connection settings from `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD` and `MYSQL_DATABASE` environment variables.
 
-## 4. Configure MySQL
+## Demo accounts
 
-Create `.streamlit/secrets.toml` by copying `.streamlit/secrets.toml.example`, then enter your own MySQL password:
-
-```toml
-[mysql]
-host = "localhost"
-port = 3306
-user = "root"
-password = "YOUR_MYSQL_PASSWORD"
-database = "it_ticketing_system"
-```
-
-Do not commit `secrets.toml` or share your database password.
-
-You can also set environment variables `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD`, and `MYSQL_DATABASE`.
-
-## 5. Start the application
-
-From the project folder:
-
-```bash
-streamlit run app.py
-```
-
-Streamlit will print a local URL, normally `http://localhost:8501`.
-
-## 6. Demo accounts
-
-Demo users and sample tickets are created automatically on first run if those email addresses do not already exist.
+The application seeds demo accounts when they are missing:
 
 | Role | Email | Password |
 |---|---|---|
-| Employee | employee@demo.com | Employee@123 |
-| IT Staff | itstaff@demo.com | ITStaff@123 |
-| Admin | admin@demo.com | Admin@123 |
+| Employee | `employee@demo.com` | `Employee@123` |
+| IT Staff | `itstaff@demo.com` | `ITStaff@123` |
+| Admin | `admin@demo.com` | `Admin@123` |
 
-Use these only for local demonstration. Change/remove demo accounts before exposing the app to a network or the internet.
+These credentials are for local demonstration only. Change or remove demo accounts before exposing the application to a network or the internet.
 
-## Demo walkthrough
+## SQL practice files
 
-### Employee demo
-1. Sign in as `employee@demo.com`.
-2. Open **Create ticket**.
-3. Submit a ticket such as “Laptop cannot connect to VPN”.
-4. Open **My tickets** to see the ticket and its status.
-5. Open the ticket, add a comment, and follow the conversation.
+- `mysql_advanced_queries.sql` — additional runnable SQL examples for MySQL Workbench.
+- `MYSQL_CONCEPTS.md` — quick notes on the SQL concepts used in the project.
 
-### IT Staff demo
-1. Sign out and sign in as `itstaff@demo.com`.
-2. Open **Ticket queue**.
-3. Select a ticket from the list.
-4. Change status to **In Progress** or **Resolved**.
-5. Assign it to a support user and save changes.
-6. Add a comment with the troubleshooting update.
+Run the examples only after selecting the `it_ticketing_system` database. Review each statement before executing it against a database containing important data.
 
-### Admin demo
-1. Sign in as `admin@demo.com`.
-2. Review the ticket queue.
-3. Open **Reports** to see status and category charts.
-4. Manage assignment, priority, and ticket status.
+## Security and deployment notes
 
-## Project structure
+- Do not commit `.streamlit/secrets.toml`, `.env`, passwords or other credentials. The repository includes only a placeholder secrets example.
+- Use a least-privilege MySQL account instead of the root account.
+- Remove demo accounts and rotate credentials before deployment.
+- Add HTTPS, rate limiting, session hardening, backups and monitoring before production use.
 
-```text
-IT_Ticketing_System/
-├── app.py
-├── database.py
-├── schema.sql
-├── requirements.txt
-├── README.md
-├── .gitignore
-└── .streamlit/
-    └── secrets.toml.example
-```
-
-## Database relationship overview
-
-- One user can raise many tickets.
-- One support user can be assigned many tickets.
-- One category can contain many tickets.
-- One ticket can have many comments.
-- Every comment is written by one user.
-
-## Important production notes
-
-This is a learning/demo project, not a production-hardened service. Before production use:
-- Use a least-privilege MySQL account rather than the root account.
-- Use HTTPS and a production deployment platform.
-- Add CSRF/session hardening, rate limiting, password reset, audit logs, and automated backups.
-- Add stronger operational monitoring and access policies.
-- Review data retention and privacy requirements.
-- Remove demo accounts and rotate all credentials.
+This project is intended as a learning and demonstration application; it is not a production-hardened helpdesk service.
